@@ -1,0 +1,35 @@
+html,
+body {
+    width: 100%;
+    min-height: 100vh;
+    box-sizing: border-box;
+    margin: 0;
+    font-family: system-ui, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue'
+}
+
+body {
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card {
+    width: min-content;
+    border: 2px solid #666;
+    border-radius: 8px;
+    box-shadow: 3px 3px rgba(0, 0, 0, 0.25);
+}
+
+.welcome-card {
+    width: 50%;
+    padding: 20px;
+    text-align: center;
+}
+
+.led-card {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 10px;
+}
