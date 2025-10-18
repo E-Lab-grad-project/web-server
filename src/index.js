@@ -10,14 +10,16 @@ const BROKER_URL = process.env.BROKER_URL || "mqtt://localhost";
 
 // [_____ MQTT Setup ______]
 // Connect securely
-const mqttClient = mqtt.connect({
-    host: process.env.MQTT_HOST,
-    port: process.env.MQTT_PORT || 8883,
-    protocol: "mqtts",
-    username: process.env.MQTT_USER,
-    password: process.env.MQTT_PASS,
-    rejectUnauthorized: false
-});
+// const mqttClient = mqtt.connect({
+//     host: process.env.MQTT_HOST,
+//     port: process.env.MQTT_PORT || 8883,
+//     protocol: "mqtts",
+//     username: process.env.MQTT_USER,
+//     password: process.env.MQTT_PASS,
+//     rejectUnauthorized: false
+// });
+
+const mqttClient = mqtt.connect("mqtt://localhost");
 
 mqttClient.on("connect", () => {
     console.log("Connected to MQTT broker");
@@ -51,7 +53,16 @@ app.get("/", (req, res) => {
 
 app.get("/led/:state", (req, res) => {
     const state = req.params.state;
-    mqttClient.publish("commands", JSON.stringify({ led: state }));
+    console.log(`publishing state ${state} on channel commands`);
+    // publish and respond when publish completes (or with error)
+    mqttClient.publish("commands", JSON.stringify({ led: state }), (err) => {
+        if (err) {
+            console.error("Publish error:", err.message || err);
+            return res.status(500).json({ error: "publish_failed" });
+        }
+        // success
+        return res.status(200).json({ ok: true, led: state });
+    });
 });
 
 // [_____ Start Server _____]
