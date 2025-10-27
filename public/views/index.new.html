@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Robot Arm Control Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 text-white min-h-screen flex items-center justify-center">
+
+  <div class="grid grid-cols-[3fr_1fr] grid-rows-[3fr_1fr] gap-4 w-[90%] h-[90vh]">
+
+    <!-- TOP LEFT - Camera -->
+    <div class="bg-gray-800/80 rounded-2xl p-4 flex flex-col justify-center items-center border border-gray-700 overflow-hidden">
+      <div class="w-full h-full bg-black rounded-lg overflow-hidden flex justify-center items-center relative shadow-2xl">
+        
+        <!-- Placeholder -->
+        <div 
+          id="cameraPlaceholder" 
+          class="absolute inset-0 flex items-center justify-center text-gray-500 text-lg transition-opacity duration-500 opacity-100">
+          Camera is off
+        </div>
+
+        <!-- Camera Stream -->
+        <video 
+          id="cameraStream" 
+          class="w-full h-full object-contain rounded-lg" 
+          autoplay 
+          playsinline>
+        </video>
+      </div>
+    </div>
+
+    <!-- TOP RIGHT - Future -->
+    <div class="bg-gray-800/80 rounded-2xl p-4 border border-gray-700 flex items-center justify-center">
+      <span class="text-gray-500">Future Feature</span>
+    </div>
+
+    <!-- BOTTOM LEFT - Future -->
+    <div class="bg-gray-800/80 rounded-2xl p-4 border border-gray-700 flex items-center justify-center">
+      <span class="text-gray-500">Future Feature</span>
+    </div>
+
+    <!-- BOTTOM RIGHT - Control Panel -->
+    <div class="bg-gray-800/80 rounded-2xl p-6 border border-gray-700 flex flex-col gap-6 justify-center items-center">
+
+      <!-- Camera Toggle -->
+      <div class="flex flex-col items-center">
+        <label class="mb-2 text-lg font-medium">Camera</label>
+        <button id="cameraToggle" class="bg-gray-700 hover:bg-green-600 px-6 py-3 rounded-lg transition">
+          Turn On
+        </button>
+      </div>
+
+      <!-- LED Toggle -->
+      <div class="flex flex-col items-center">
+        <label class="mb-2 text-lg font-medium">LED</label>
+        <button id="ledToggle" class="bg-gray-700 hover:bg-green-600 px-6 py-3 rounded-lg transition">
+          Turn On
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const cameraBtn = document.getElementById('cameraToggle');
+    const ledBtn = document.getElementById('ledToggle');
+    const videoElement = document.getElementById('cameraStream');
+    const cameraPlaceholder = document.getElementById('cameraPlaceholder');
+
+    let cameraStream = null;
+
+    // Toggle camera stream
+    cameraBtn.addEventListener('click', async () => {
+      const isOn = cameraBtn.classList.toggle('bg-green-600');
+      cameraBtn.textContent = isOn ? 'Turn Off' : 'Turn On';
+
+      if (isOn) {
+        try {
+          cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+          videoElement.srcObject = cameraStream;
+
+          // Smooth transition: show camera, hide placeholder
+          cameraPlaceholder.classList.replace('opacity-100', 'opacity-0');
+          setTimeout(() => {
+            cameraPlaceholder.classList.add('hidden');
+            videoElement.classList.remove('hidden');
+            videoElement.classList.replace('opacity-0', 'opacity-100');
+          }, 300);
+          
+        } catch (err) {
+          console.error('Camera access error:', err);
+          alert('Unable to access the camera. Please allow permissions.');
+          cameraBtn.classList.remove('bg-green-600');
+          cameraBtn.textContent = 'Turn On';
+        }
+      } else {
+        if (cameraStream) {
+          cameraStream.getTracks().forEach(track => track.stop());
+          videoElement.srcObject = null;
+        }
+
+        // Smooth transition: show placeholder, hide camera
+        videoElement.classList.replace('opacity-100', 'opacity-0');
+        setTimeout(() => {
+          videoElement.classList.add('hidden');
+          cameraPlaceholder.classList.remove('hidden');
+          cameraPlaceholder.classList.replace('opacity-0', 'opacity-100');
+        }, 300);
+      }
+    });
+
+    // LED toggle placeholder
+    ledBtn.addEventListener('click', () => {
+      const isOn = ledBtn.classList.toggle('bg-green-600');
+      ledBtn.textContent = isOn ? 'Turn Off' : 'Turn On';
+    });
+  </script>
+</body>
+</html>
